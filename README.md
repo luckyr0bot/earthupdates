@@ -1,2 +1,3 @@
 # earthupdates
 A news site that explains the news in video game terms
+and yeah thats probably it...
