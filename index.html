@@ -37,9 +37,1183 @@
     </style>
   
   
+  hier ist der ganze code 
+
+
+
+
+
+ <!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EARTH UPDATES</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+        :root {
+            --primary: #000000;
+            --accent: #000000;
+            --danger: #ff006e;
+            --bg-dark: #ffffff;
+            --text-primary: #e0e0ff;
+            --text-secondary: #a0a0c0;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0, 255, 136, 0.03) 0px, rgba(0, 255, 136, 0.03) 1px, transparent 1px, transparent 2px);
+            pointer-events: none;
+            z-index: 10;
+            animation: scanlines 8s linear infinite;
+        }
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(10px); }
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            right: 0;
+            z-index: 20;
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .header-left {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 20;
+            padding: 20px;
+            display: none;
+        }
+        .header-left.show {
+            display: block;
+        }
+        .user-info {
+            background: rgba(26, 31, 58, 0.7);
+            border: 1px solid rgba(42, 47, 74, 0.5);
+            border-radius: 6px;
+            padding: 10px 15px;
+            font-size: 0.85em;
+        }
+        .user-rank {
+            color: var(--primary);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .user-rank.admin {
+            color: #ff9500;
+        }
+        .user-rank.owner {
+            color: #ff0000;
+        }
+        .settings-btn, .admin-btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            border-radius: 6px;
+            padding: 10px 15px;
+            color: var(--bg-dark);
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            transition: opacity 0.3s ease;
+        }
+        .settings-btn:hover, .admin-btn:hover {
+            opacity: 0.8;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 30;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, rgba(26, 31, 58, 0.95), rgba(26, 31, 58, 0.7));
+            border: 1px solid rgba(42, 47, 74, 0.5);
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .admin-panel {
+            display: none;
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            width: 400px;
+            max-height: 80vh;
+            background: linear-gradient(135deg, rgba(26, 31, 58, 0.95), rgba(26, 31, 58, 0.7));
+            border: 1px solid rgba(42, 47, 74, 0.5);
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 25;
+            overflow-y: auto;
+        }
+        .admin-panel.show {
+            display: block;
+        }
+        .admin-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(42, 47, 74, 0.5);
+        }
+        .admin-panel-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .admin-close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.5em;
+            transition: color 0.3s ease;
+        }
+        .admin-close-btn:hover {
+            color: var(--primary);
+        }
+        .admin-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(42, 47, 74, 0.5);
+        }
+        .admin-action-btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            border-radius: 6px;
+            padding: 10px;
+            color: var(--bg-dark);
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            transition: opacity 0.3s ease;
+        }
+        #adminReloadBtn {
+            background: linear-gradient(135deg, #1100ff, #0088ff);
+            color: white;
+        }
+        #adminEditBtn {
+            background: linear-gradient(135deg, #000000, #000000);
+            color: #000;
+        }
+        #adminManagePendingBtn {
+            background: linear-gradient(135deg, #ff00cc, #ff0088);
+            color: white;
+        }
+        #adminWarnBtn {
+            background: linear-gradient(135deg, #ffcc00, #ffaa00);
+            color: #000;
+        }
+        .admin-action-btn.danger {
+            background: linear-gradient(135deg, var(--danger), #ff1493);
+        }
+        .admin-action-btn:hover {
+            opacity: 0.8;
+        }
+        .modal-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+        .modal-btn.danger {
+            background: rgba(255, 0, 110, 0.2);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+        .modal-btn.danger:hover {
+            opacity: 0.7;
+        }
+        .modal-btn.primary {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: var(--bg-dark);
+        }
+        .content {
+            position: relative;
+            z-index: 2;
+            padding: 60px 20px;
+            background: var(--bg-dark);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 3;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .title {
+            font-family: 'Space Mono', monospace;
+            font-size: 2.5em;
+            font-weight: 700;
+            letter-spacing: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .form-section {
+            margin-top: 60px;
+            padding-bottom: 60px;
+        }
+        .form-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5em;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            color: var(--primary);
+        }
+        .form-group {
+            background: linear-gradient(90deg, rgba(26, 31, 58, 0.7), rgba(26, 31, 58, 0.3));
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(42, 47, 74, 0.5);
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+        .form-label {
+            font-size: 0.9em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+        .form-input {
+            background: rgba(10, 14, 39, 0.5);
+            border: 1px solid rgba(42, 47, 74, 0.5);
+            border-radius: 4px;
+            padding: 12px 15px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(10, 14, 39, 0.8);
+        }
+        .value-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .char-btn {
+            background: rgba(42, 47, 74, 0.5);
+            border: 1px solid rgba(42, 47, 74, 0.7);
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            font-family: monospace;
+        }
+        .char-btn:hover {
+            background: rgba(42, 47, 74, 0.9);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .value-display {
+            background: rgba(10, 14, 39, 0.5);
+            border: 1px solid rgba(42, 47, 74, 0.5);
+            border-radius: 4px;
+            padding: 12px 15px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--primary);
+            margin-top: 10px;
+        }
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            border-radius: 6px;
+            padding: 14px 30px;
+            color: var(--bg-dark);
+            font-weight: 700;
+            font-size: 1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .submit-btn:hover {
+            opacity: 0.8;
+        }
+        .updates-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .update-item {
+            background: rgba(42, 47, 74, 0.3);
+            border: 1px solid rgba(42, 47, 74, 0.5);
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .update-item:hover {
+            background: rgba(42, 47, 74, 0.5);
+            border-color: var(--primary);
+        }
+        .update-item-title {
+            font-weight: 700;
+            font-size: 0.9em;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .update-item-user {
+            font-size: 0.7em;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .update-item-value {
+            font-size: 0.85em;
+            color: var(--accent);
+        }
+        .edit-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .success-message {
+            background: rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.5);
+            border-radius: 6px;
+            padding: 15px;
+            color: var(--primary);
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+        }
+        .success-message.show {
+            display: block;
+        }
+        .refresh-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+            transition: opacity 0.3s ease;
+            z-index: 10;
+            font-family: monospace;
+        }
+        .refresh-button:hover {
+            opacity: 0.8;
+        }
+        @media (max-width: 768px) {
+            .admin-panel {
+                width: 100%;
+                left: 0;
+                top: 70px;
+                right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="user-info">
+            <span id="userDisplay">Loading...</span><br>
+            <span class="user-rank" id="rankDisplay"></span>
+        </div>
+        <button class="settings-btn" id="settingsBtn">Settings</button>
+    </div>
+
+    <div class="header-left" id="headerLeft">
+        <button class="admin-btn" id="adminPanelBtn">Admin Panel</button>
+    </div>
+
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Settings</h2>
+            <div class="modal-buttons">
+                <button class="modal-btn primary" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Edit Update</h2>
+            <div class="edit-form">
+                <div class="form-field">
+                    <label class="form-label">Title</label>
+                    <input type="text" id="editTitle" class="form-input" maxlength="50">
+                </div>
+                <div class="form-field">
+                    <label class="form-label">Message</label>
+                    <textarea id="editMessage" class="form-input" maxlength="150" rows="3"></textarea>
+                </div>
+                <div class="form-field">
+                    <label class="form-label">Value</label>
+                    <input type="text" id="editValue" class="form-input" maxlength="20">
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn danger" id="editDeleteBtn">Delete</button>
+                <button class="modal-btn primary" id="editSaveBtn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Delete Update</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">Select an update to delete:</p>
+            <div class="updates-list" id="deleteList"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn primary" id="deleteCancelBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="pendingModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Pending Updates</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">Approve or reject pending updates:</p>
+            <div class="updates-list" id="pendingList"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn primary" id="pendingCancelBtn">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="banModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Ban User</h2>
+            <div style="margin-bottom: 20px;">
+                <p style="color: var(--text-secondary); margin-bottom: 15px;">Select a user to ban:</p>
+                <div class="updates-list" id="banUserList"></div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn primary" id="banCancelBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="warnModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Warn User</h2>
+            <div style="margin-bottom: 20px;">
+                <p style="color: var(--text-secondary); margin-bottom: 15px;">Select a user to warn:</p>
+                <div class="updates-list" id="warnUserList"></div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn primary" id="warnCancelBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-panel-header">
+            <span class="admin-panel-title">Admin Panel</span>
+            <button class="admin-close-btn" id="adminCloseBtn">X</button>
+        </div>
+
+        <div class="admin-actions">
+            <button class="admin-action-btn" id="adminReloadBtn">Reload Site</button>
+            <button class="admin-action-btn" id="adminEditBtn">Edit Updates</button>
+            <button class="admin-action-btn" id="adminManagePendingBtn">Manage Pending</button>
+            <button class="admin-action-btn danger" id="adminDeleteBtn">Delete Updates</button>
+            <button class="admin-action-btn" id="adminWarnBtn">Warn User</button>
+            <button class="admin-action-btn danger" id="adminBanBtn">Ban User</button>
+            <button class="admin-action-btn danger" id="adminShutdownBtn">Shutdown Site</button>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="container">
+            <header>
+                <h1 class="title">EARTH UPDATES</h1>
+                <p class="subtitle">Global Status Monitor</p>
+            </header>
+
+            <div id="approvedUpdatesSection" style="margin-bottom: 60px;">
+                <h2 class="form-title">Current Updates</h2>
+                <div id="approvedUpdatesList" class="updates-list">
+                    <div style="text-align: center; padding: 20px; color: var(--text-secondary);">No approved updates yet</div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="form-title">Submit Update</h2>
+                <form id="updateForm" class="form-group">
+                    <div class="form-field">
+                        <label class="form-label">Title</label>
+                        <input type="text" id="titleInput" class="form-input" placeholder="e.g. School Stress" maxlength="50">
+                    </div>
+
+                    <div class="form-field">
+                        <label class="form-label">Message</label>
+                        <textarea id="messageInput" class="form-input" placeholder="Description" maxlength="150" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-field">
+                        <label class="form-label">Value</label>
+                        <div class="value-buttons">
+                            <button type="button" class="char-btn" data-char="+">+</button>
+                            <button type="button" class="char-btn" data-char="-">-</button>
+                            <button type="button" class="char-btn" data-char="%">%</button>
+                            <button type="button" class="char-btn" data-char="0">0</button>
+                            <button type="button" class="char-btn" data-char="1">1</button>
+                            <button type="button" class="char-btn" data-char="2">2</button>
+                            <button type="button" class="char-btn" data-char="3">3</button>
+                            <button type="button" class="char-btn" data-char="4">4</button>
+                            <button type="button" class="char-btn" data-char="5">5</button>
+                            <button type="button" class="char-btn" data-char="6">6</button>
+                            <button type="button" class="char-btn" data-char="7">7</button>
+                            <button type="button" class="char-btn" data-char="8">8</button>
+                            <button type="button" class="char-btn" data-char="9">9</button>
+                        </div>
+                        <div class="value-display" id="valueDisplay">-</div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Submit Update</button>
+                    <div class="success-message" id="successMessage">Update submitted!</div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <button class="refresh-button" id="refreshBtn">R</button>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const token = localStorage.getItem('token');
+
+        if (!user.username) {
+            window.location.href = '/login.html';
+        }
+
+        let userRank = user.rank;
+        if (token) {
+            try {
+                const decoded = Buffer.from(token, 'base64').toString('utf8').split(':');
+                if (decoded[2]) {
+                    userRank = decoded[2];
+                }
+            } catch (err) {
+                console.error('Error decoding token');
+            }
+        }
+
+        document.getElementById('userDisplay').textContent = user.username;
+        document.getElementById('rankDisplay').textContent = userRank || 'USER';
+        
+        if (userRank === 'admin') {
+            document.getElementById('rankDisplay').classList.add('admin');
+        } else if (userRank === 'owner') {
+            document.getElementById('rankDisplay').classList.add('owner');
+        }
+
+        if (userRank === 'admin' || userRank === 'owner') {
+            document.getElementById('headerLeft').classList.add('show');
+        }
+
+        const settingsModal = document.getElementById('settingsModal');
+        const editModal = document.getElementById('editModal');
+        const deleteModal = document.getElementById('deleteModal');
+        const pendingModal = document.getElementById('pendingModal');
+        const banModal = document.getElementById('banModal');
+        const warnModal = document.getElementById('warnModal');
+        const adminPanel = document.getElementById('adminPanel');
+
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            settingsModal.classList.add('show');
+        });
+
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.classList.remove('show');
+            }
+        });
+
+        editModal.addEventListener('click', (e) => {
+            if (e.target === editModal) {
+                editModal.classList.remove('show');
+            }
+        });
+
+        deleteModal.addEventListener('click', (e) => {
+            if (e.target === deleteModal) {
+                deleteModal.classList.remove('show');
+            }
+        });
+
+        pendingModal.addEventListener('click', (e) => {
+            if (e.target === pendingModal) {
+                pendingModal.classList.remove('show');
+            }
+        });
+
+        banModal.addEventListener('click', (e) => {
+            if (e.target === banModal) {
+                banModal.classList.remove('show');
+            }
+        });
+
+        warnModal.addEventListener('click', (e) => {
+            if (e.target === warnModal) {
+                warnModal.classList.remove('show');
+            }
+        });
+
+        document.getElementById('adminPanelBtn').addEventListener('click', () => {
+            adminPanel.classList.toggle('show');
+            if (adminPanel.classList.contains('show') && (userRank === 'admin' || userRank === 'owner')) {
+                loadPendingUpdates();
+            }
+        });
+
+        document.getElementById('adminCloseBtn').addEventListener('click', () => {
+            adminPanel.classList.remove('show');
+        });
+
+        document.getElementById('adminReloadBtn').addEventListener('click', () => {
+            location.reload();
+        });
+
+        document.getElementById('adminShutdownBtn').addEventListener('click', () => {
+            if (confirm('Shutdown site?')) {
+                alert('Site shutdown initiated');
+                location.href = '/login.html';
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = '/login.html';
+        });
+
+        document.getElementById('adminEditBtn').addEventListener('click', async () => {
+            adminPanel.classList.remove('show');
+            
+            try {
+                const res = await fetch('/api/all-updates', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const updates = await res.json();
+
+                const list = document.getElementById('deleteList');
+                list.innerHTML = updates.map(u => `
+                    <div class="update-item" data-id="${u.id}">
+                        <div class="update-item-title">${u.title}</div>
+                        <div class="update-item-user">@${u.username}</div>
+                        <div class="update-item-value">${u.value}</div>
+                    </div>
+                `).join('');
+
+                document.querySelectorAll('.update-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const id = item.dataset.id;
+                        const update = updates.find(u => u.id == id);
+                        
+                        document.getElementById('editTitle').value = update.title;
+                        document.getElementById('editMessage').value = update.message;
+                        document.getElementById('editValue').value = update.value;
+                        
+                        window.currentEditId = id;
+                        
+                        editModal.classList.add('show');
+                    });
+                });
+
+                deleteModal.classList.add('show');
+            } catch (err) {
+                alert('Error loading updates');
+            }
+        });
+
+        document.getElementById('adminDeleteBtn').addEventListener('click', async () => {
+            adminPanel.classList.remove('show');
+            
+            try {
+                const res = await fetch('/api/all-updates', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const updates = await res.json();
+
+                const list = document.getElementById('deleteList');
+                list.innerHTML = updates.map(u => `
+                    <div class="update-item" data-id="${u.id}" onclick="deleteUpdate(${u.id})">
+                        <div class="update-item-title">${u.title}</div>
+                        <div class="update-item-user">@${u.username}</div>
+                        <div class="update-item-value">${u.value}</div>
+                    </div>
+                `).join('');
+
+                deleteModal.classList.add('show');
+            } catch (err) {
+                alert('Error loading updates');
+            }
+        });
+
+        document.getElementById('deleteCancelBtn').addEventListener('click', () => {
+            deleteModal.classList.remove('show');
+        });
+
+        document.getElementById('pendingCancelBtn').addEventListener('click', () => {
+            pendingModal.classList.remove('show');
+        });
+
+        document.getElementById('adminManagePendingBtn').addEventListener('click', async () => {
+            adminPanel.classList.remove('show');
+            
+            try {
+                const res = await fetch('/api/suggestions', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const pending = await res.json();
+
+                const list = document.getElementById('pendingList');
+                list.innerHTML = pending.map(u => `
+                    <div class="update-item">
+                        <div class="update-item-title">${u.title}</div>
+                        <div class="update-item-user">@${u.username}</div>
+                        <div class="update-item-value">${u.value}</div>
+                        <div style="color: var(--text-secondary); font-size: 0.8em; margin-top: 8px;">${u.message}</div>
+                        <div style="display: flex; gap: 8px; margin-top: 10px;">
+                            <button onclick="approvePending(${u.id})" style="flex: 1; padding: 6px; background: rgba(0, 255, 136, 0.2); border: 1px solid rgba(0, 255, 136, 0.5); border-radius: 4px; color: var(--primary); cursor: pointer; font-weight: 600; font-size: 0.75em;">Approve</button>
+                            <button onclick="rejectPending(${u.id})" style="flex: 1; padding: 6px; background: rgba(255, 0, 110, 0.2); border: 1px solid rgba(255, 0, 110, 0.5); border-radius: 4px; color: var(--danger); cursor: pointer; font-weight: 600; font-size: 0.75em;">Reject</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                pendingModal.classList.add('show');
+            } catch (err) {
+                alert('Error loading pending updtes');
+            }
+        });
+
+        document.getElementById('deleteCancelBtn').addEventListener('click', () => {
+            deleteModal.classList.remove('show');
+        });
+
+        document.getElementById('banCancelBtn').addEventListener('click', () => {
+            banModal.classList.remove('show');
+        });
+
+        document.getElementById('warnCancelBtn').addEventListener('click', () => {
+            warnModal.classList.remove('show');
+        });
+
+        document.getElementById('adminWarnBtn').addEventListener('click', async () => {
+            adminPanel.classList.remove('show');
+            
+            try {
+                const res = await fetch('/api/all-users', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const allUsers = await res.json();
+
+                const list = document.getElementById('warnUserList');
+                list.innerHTML = allUsers.map(u => `
+                    <div class="update-item" onclick="warnUser('${u.username}')">
+                        <div class="update-item-title">${u.username}</div>
+                        <div class="update-item-user">${u.rank}</div>
+                    </div>
+                `).join('');
+
+                warnModal.classList.add('show');
+            } catch (err) {
+                alert('Error loading users');
+            }
+        });
+
+        document.getElementById('adminBanBtn').addEventListener('click', async () => {
+            adminPanel.classList.remove('show');
+            
+            try {
+                const res = await fetch('/api/all-users', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const allUsers = await res.json();
+
+                const list = document.getElementById('banUserList');
+                list.innerHTML = allUsers.filter(u => u.rank !== 'admin').map(u => `
+                    <div class="update-item" onclick="banUser('${u.username}')">
+                        <div class="update-item-title">${u.username}</div>
+                        <div class="update-item-user">${u.rank}</div>
+                    </div>
+                `).join('');
+
+                banModal.classList.add('show');
+            } catch (err) {
+                alert('Error loading users');
+            }
+        });
+
+        document.getElementById('editSaveBtn').addEventListener('click', async () => {
+            const id = window.currentEditId;
+            const title = document.getElementById('editTitle').value;
+            const message = document.getElementById('editMessage').value;
+            const value = document.getElementById('editValue').value;
+
+            if (!title || !message || !value) {
+                alert('All fields required!');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/updates/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ title, message, value })
+                });
+
+                if (res.ok) {
+                    alert('Update saved!');
+                    editModal.classList.remove('show');
+                    deleteModal.classList.remove('show');
+                    location.reload();
+                } else {
+                    alert('Error saving update');
+                }
+            } catch (err) {
+                alert('Error saving update');
+            }
+        });
+
+        document.getElementById('editDeleteBtn').addEventListener('click', async () => {
+            const id = window.currentEditId;
+
+            if (!confirm('Delete this update?')) return;
+
+            try {
+                const res = await fetch(`/api/updates/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    alert('Update deleted!');
+                    editModal.classList.remove('show');
+                    deleteModal.classList.remove('show');
+                } else {
+                    alert('Error deleting update');
+                }
+            } catch (err) {
+                alert('Error deleting update');
+            }
+        });
+
+        function deleteUpdate(id) {
+            if (!confirm('Delete this update?')) return;
+
+            fetch(`/api/updates/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            }).then(res => {
+                if (res.ok) {
+                    alert('Update deleted!');
+                    deleteModal.classList.remove('show');
+                } else {
+                    alert('Error deleting update');
+                }
+            }).catch(err => {
+                alert('Error deleting update');
+            });
+        }
+
+        function warnUser(username) {
+            if (!confirm(`Warn @${username}?`)) return;
+
+            fetch('/api/warn-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ username, reason: 'Warning from admin' })
+            }).then(res => {
+                if (res.ok) {
+                    alert(`@${username} has been warned!`);
+                    warnModal.classList.remove('show');
+                } else {
+                    alert('Error warning user');
+                }
+            }).catch(err => {
+                alert('Error warning user');
+            });
+        }
+
+        function banUser(username) {
+            if (!confirm(`Ban @${username}? They will become a regular user.`)) return;
+
+            fetch('/api/ban-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ username, reason: 'Banned by admin', banType: 'account' })
+            }).then(res => {
+                if (res.ok) {
+                    alert(`@${username} has been banned!`);
+                    banModal.classList.remove('show');
+                } else {
+                    return res.json().then(err => {
+                        alert(err.error || 'Error banning user');
+                    });
+                }
+            }).catch(err => {
+                alert('Error banning user');
+            });
+        }
+
+        function approvePending(id) {
+            fetch(`/api/suggestions/${id}/approve`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}` }
+            }).then(res => {
+                if (res.ok) {
+                    alert('Update approved!');
+                    loadApprovedUpdates();
+                    document.getElementById('adminManagePendingBtn').click();
+                } else {
+                    alert('Error approving update');
+                }
+            }).catch(err => {
+                alert('Error approving update');
+            });
+        }
+
+        function rejectPending(id) {
+            if (!confirm('Reject this update?')) return;
+
+            fetch(`/api/suggestions/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            }).then(res => {
+                if (res.ok) {
+                    alert('Update rejected!');
+                    document.getElementById('adminManagePendingBtn').click();
+                } else {
+                    alert('Error rejecting update');
+                }
+            }).catch(err => {
+                alert('Error rejecting update');
+            });
+        }
+
+        let currentValue = '';
+        document.querySelectorAll('.char-btn[data-char]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                currentValue += btn.dataset.char;
+                document.getElementById('valueDisplay').textContent = currentValue || '-';
+            });
+        });
+
+        document.getElementById('updateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById('titleInput').value.trim();
+            const message = document.getElementById('messageInput').value.trim();
+            const value = currentValue.trim();
+
+            if (!title || !message || !value) {
+                alert('All fields required!');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/updates', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ title, message, value, username: user.username })
+                });
+
+                if (!res.ok) throw new Error('Submit failed');
+
+                document.getElementById('successMessage').classList.add('show');
+                document.getElementById('updateForm').reset();
+                currentValue = '';
+                document.getElementById('valueDisplay').textContent = '-';
+
+                setTimeout(() => {
+                    document.getElementById('successMessage').classList.remove('show');
+                }, 2000);
+            } catch (err) {
+                alert(err.message);
+            }
+        });
+
+        document.getElementById('refreshBtn').addEventListener('click', () => location.reload());
+
+        loadApprovedUpdates();
+
+        async function loadApprovedUpdates() {
+            try {
+                const res = await fetch('/api/updates');
+                const updates = await res.json();
+                const list = document.getElementById('approvedUpdatesList');
+
+                if (!updates || updates.length === 0) {
+                    list.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-secondary);">No approved updates yet</div>';
+                    return;
+                }
+
+                list.innerHTML = updates.map(u => `
+                    <div class="update-item">
+                        <div class="update-item-title">${u.title}</div>
+                        <div class="update-item-user">@${u.username}</div>
+                        <div class="update-item-value">${u.value}</div>
+                        <div style="color: var(--text-secondary); font-size: 0.8em; margin-top: 8px;">${u.message}</div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('Error loading approved updates:', err);
+            }
+        }
+
+        async function loadPendingUpdates() {
+            try {
+                const res = await fetch('/api/suggestions', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!res.ok) {
+                    console.error('Error loading pending updates');
+                    return;
+                }
+
+                const updates = await res.json();
+                const adminActionsDiv = document.querySelector('.admin-actions');
+                let pendingDiv = document.getElementById('pendingUpdatesDiv');
+
+                if (!pendingDiv) {
+                    pendingDiv = document.createElement('div');
+                    pendingDiv.id = 'pendingUpdatesDiv';
+                    adminActionsDiv.parentNode.insertBefore(pendingDiv, adminActionsDiv.nextSibling);
+                }
+
+                if (!updates || updates.length === 0) {
+                    pendingDiv.innerHTML = '<div style="text-align: center; padding: 15px; color: var(--text-secondary); font-size: 0.85em;">No pending updates</div>';
+                    return;
+                }
+
+                pendingDiv.innerHTML = '<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(42, 47, 74, 0.5);"><p style="color: var(--primary); font-weight: 700; margin-bottom: 10px; font-size: 0.9em;">Pending Updates</p>' + updates.map(u => `
+                    <div class="update-item" style="margin-bottom: 10px;">
+                        <div class="update-item-title">${u.title}</div>
+                        <div class="update-item-user">@${u.username}</div>
+                        <div class="update-item-value">${u.value}</div>
+                        <div style="color: var(--text-secondary); font-size: 0.75em; margin-top: 6px;">${u.message}</div>
+                    </div>
+                `).join('') + '</div>';
+            } catch (err) {
+                console.error('Error loading pending updates:', err);
+            }
+        }
+    </script>
+</body>
+</html>   
   
-  
-  
+
+
+
+junge dieser code hat so lange gedauert zu scripten 
+ ich habe noch server.js und die .json´s also geb ich sie dir später
+
+und ja kein bock richtiges token system zu machen deswegen habe ich base 64 genommen -_-    
+    
   -->
   
   
