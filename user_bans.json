@@ -1,0 +1,12 @@
+{
+   "bans": [{
+        "id": 1777717804495,
+        "username": "Diego",
+        "reason": "",
+        "ban": false
+    }],
+    "ip bans" : [{
+
+    }]
+
+}
