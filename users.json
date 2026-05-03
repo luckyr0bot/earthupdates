@@ -1,0 +1,11 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "neutriexd",
+      "password": "admin",
+      "rank": "owner / Main developer",
+      "createdAt": "2026-04-29T00:00:00Z"
+    }
+  ]
+}
